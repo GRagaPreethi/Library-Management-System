@@ -25,7 +25,14 @@ const swaggerSpec = swaggerJsdoc({
       description:
         "REST API for managing a library — books, members, borrowing and returning — with JWT authentication and role-based access control.",
     },
-    servers: [{ url: "http://localhost:" + (process.env.PORT || 5000) }],
+    servers: [
+  {
+    url:
+      process.env.NODE_ENV === "production"
+        ? "https://library-management-system-ksgx.onrender.com"
+        : `http://localhost:${process.env.PORT || 5000}`,
+  },
+],
     components: {
       securitySchemes: {
         BearerAuth: {
@@ -51,9 +58,24 @@ app.get("/api/docs.json", (req, res) => {
   res.json(swaggerSpec);
 });
 
+// Welcome route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Welcome to the Library Management System API 🚀",
+    apiDocumentation:
+      "https://library-management-system-ksgx.onrender.com/api/docs",
+    version: "1.0.0",
+    developer: "Raga Preethi",
+  });
+});
+
 // Health check
 app.get("/api/healthz", (req, res) => {
-  res.json({ success: true, message: "Library API is running" });
+  res.json({
+    success: true,
+    message: "Library API is running",
+  });
 });
 
 // Routes
@@ -75,6 +97,12 @@ const PORT = process.env.PORT || 5000;
 connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    console.log(`Swagger UI: http://localhost:${PORT}/api/docs`);
+    console.log(
+      `Swagger UI: ${
+        process.env.NODE_ENV === "production"
+          ? "https://library-management-system-ksgx.onrender.com/api/docs"
+          : `http://localhost:${PORT}/api/docs`
+      }`
+    );
   });
 });
